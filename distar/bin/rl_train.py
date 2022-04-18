@@ -137,6 +137,7 @@ if __name__ == '__main__':
         config.league.vs_bot = False
     else:
         raise NotImplementedError
+    
     context_str = 'spawn'
     mp_context = multiprocessing.get_context(context_str)
     

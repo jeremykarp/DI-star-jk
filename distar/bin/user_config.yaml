@@ -28,7 +28,7 @@ feature:
   zergling_num: 8
 learner:
   agent: 'default'
-  job_type: 'train' # 'train' or 'test'
+  job_type: 'test' # 'train' or 'test'
   load_path: '' # load checkpoint when resume
   use_cuda: True
   use_distributed: False
@@ -143,14 +143,14 @@ model:
         film: False
         unet: False
 actor:
-  job_type: 'train' # ['train', 'eval', 'train_test', 'eval_test']
+  job_type: 'eval_test' # ['train', 'eval', 'train_test', 'eval_test']
   gpu_batch_inference: False
   env_num: 1
   episode_num: 1
   print_freq: 1000
   traj_len: 2
   use_cuda: False
-  fake_model: False # if True, skip model loading
+  fake_model: True # if True, skip model loading
   player_ids: ['model1', 'model2']
   agents:
     model1: 'default'
@@ -162,7 +162,7 @@ actor:
   teacher_model_paths:
     haha: 'haha.pth.tar'
 env:
-  map_name: 'random'
+  map_name: 'KingsCove'
   player_ids: ['agent1', 'bot10']
   races: ['zerg', 'zerg']
   map_size_resolutions: [True, True] # if True, ignore minimap_resolutions
@@ -181,7 +181,7 @@ league:
   pfsp_train_bot: False
   bot_probs: [0, 0, 0, 0, 0, 0, 0, 0.2,0.2, 0.3, 0.3]
   save_initial_snapshot : True
-  map_names: ['random']
+  map_names: ['KingsCove']
   map_id_weights: [ 1 ]
   active_players:
     checkpoint_path: [ *model_path ]

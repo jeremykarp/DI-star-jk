@@ -14,7 +14,7 @@ actor:
   print_freq: 10
   traj_len: 2
   use_cuda: False
-  fake_model: False # if True, skip model loading
+  fake_model: True # if True, skip model loading
   player_ids: ['haha']
   agents:
     haha: 'default'
@@ -24,7 +24,7 @@ actor:
   teacher_model_paths:
     haha: 'haha.pth.tar'
 env:
-  map_name: 'KairosJunction'
+  map_name: 'KingsCove'
   player_ids: ['agent', 'bot7']
   races: ['zerg', 'zerg']
   map_size_resolutions: [True, True] # if True, ignore minimap_resolutions

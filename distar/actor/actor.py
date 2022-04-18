@@ -164,6 +164,11 @@ class Actor(object):
                         # env step
                         env_start_time = time.time()
                         next_observations, reward, done = self._env.step(actions)
+                        # print('------------------------------------------------------------------------------------')
+                        # print('game_iters:',game_iters)
+                        # print('actions:',actions)
+                        # print('reward:',reward)
+                        # print("observations:",observations)
                         env_time = time.time() - env_start_time
                         next_players_obs = next_observations
                         # collect data
