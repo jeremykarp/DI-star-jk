@@ -14,7 +14,7 @@ actor:
   print_freq: 10
   traj_len: 2
   use_cuda: False
-  fake_model: True # if True, skip model loading
+  fake_model: False # if True, skip model loading
   player_ids: ['haha']
   agents:
     haha: 'default'
