@@ -189,6 +189,7 @@ class SC2Env(object):
 
                 # Actually launch the game processes.
                 if self._human_flag:
+                    # self._sc2_procs = List[sc_process.StarcraftProcess(self, exec_path=exec_path, version=self.version, **kwargs)]
                     self._sc2_procs = [
                         self._run_config.start(extra_ports=self._ports,
                                                want_rgb=False),
@@ -200,6 +201,7 @@ class SC2Env(object):
                         self._run_config.start(extra_ports=self._ports,
                                             want_rgb=False)
                         for _ in range(self._num_agents)]
+                # self._controllers = List[remote_controller.RemoteController(self._host, self._port, self, timeout_seconds=timeout_seconds)] 
                 self._controllers = [p.controller for p in self._sc2_procs]
                 return
             except Exception as e:

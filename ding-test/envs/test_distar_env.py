@@ -34,34 +34,20 @@ class TestDIstarEnv:
         self._env = DIStarEnv(mergerd_whole_cfg)
 
         with torch.no_grad():
-            for _ in range(10):
+            for _ in range(15):
                 try:
                     observations, game_info, map_name = self._env.reset()
 
-                    for iter in range(50):  # one episode loop
+                    for iter in range(1000):  # one episode loop
                         # agent step
-                        if iter % 5 == 1:
-                            actions = {0: [{'func_id': 503, 'skip_steps': 0, 'queued': 0, 'unit_tags': [4350279681, 4350541825, 4350803969], 
-                                'target_unit_tag': 4309123073, 'location': (127, 17)}]}
-                        elif iter % 5 == 2:
-                            actions = {0: [{'func_id': 503, 'skip_steps': 9, 'queued': 0, 
-                                'unit_tags': [4346085377, 4346347521, 4346609665], 'target_unit_tag': 4345823233, 'location': (17, 121)}]}
-                        elif iter % 5 == 3:
-                            actions = {0: [{'func_id': 12, 'skip_steps': 8, 'queued': 0, 
-                                'unit_tags': [4350279681, 4350541825, 4350803969], 'target_unit_tag': 4309123073, 'location': (139, 16)}]}
-                        elif iter % 5 == 4:
-                            actions = {0: [{'func_id': 515, 'skip_steps': 3, 'queued': 0, 
-                                'unit_tags': [4350541825, 4350803969, 4358930433], 'target_unit_tag': 4309123073, 'location': (127, 15)}]}
-                        else:
-                            actions = {0: [{'func_id': 1, 'skip_steps': 10, 'queued': 0, 
-                                'unit_tags': [4354211841], 'target_unit_tag': 4350017537, 'location': (126, 27)}]}
+                        actions = self._env.random_action(observations)
                         # env step
                         next_observations, reward, done = self._env.step(actions)
-                        print('reward: ', reward)
-                        # print('next_observations', next_observations)
-                        print('done: ', done)
-                        time.sleep(1)
-
+                        if not done:
+                            observations = next_observations
+                        else:
+                            break
+                        
                 except Exception as e:
                     print('[EPISODE LOOP ERROR]', e, flush=True)
                     print(''.join(traceback.format_tb(e.__traceback__)), flush=True)
