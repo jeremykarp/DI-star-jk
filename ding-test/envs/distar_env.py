@@ -19,8 +19,8 @@ class DIStarEnv(SC2Env,BaseEnv):
         super(DIStarEnv,self).close()
 
     def step(self,actions):
-        # 一般BaseEnv返回 ('obs', 'reward', 'done', 'info')
-        # 这里DI-star返回 ({'raw_obs': self._obs[agent_idx], 'opponent_obs': opponent_obs, 'action_result': self._action_result[agent_idx]}, reward, episode_complete)
+        # In DI-engine, the return of BaseEnv.step is ('obs', 'reward', 'done', 'info')
+        # Here in DI-star, the return is ({'raw_obs': self._obs[agent_idx], 'opponent_obs': opponent_obs, 'action_result': self._action_result[agent_idx]}, reward, episode_complete)
         return super(DIStarEnv,self).step(actions)
 
     def seed(self, seed, dynamic_seed=False):
@@ -28,23 +28,11 @@ class DIStarEnv(SC2Env,BaseEnv):
     
     @property
     def observation_space(self):
-        # 作用:
-        # 除了限制 observation，以及偶尔提取一些常数外，没看出啥别的用处
         #TODO
         pass
 
     @property
     def action_space(self):
-        # 作用:
-        # 1. cfg里用来判断continuous/discrete/hybird, regression/reparameterization/, 和这里的action_space 应该没啥关系
-        # 2. test_cql, test_r2d3, test_gail_irl_model 等函数中，是一个整数常数，实际上是action_size/action_shape, 这里可以认为是名词滥用，和真正的space也没啥太大关系
-        # 3. IMPORTANT: 被random_collect 调用的 PolicyFactory.get_random_policy, 会使用 action_space 来做sample(), 继承自 gym.space 的 action_space 是可以做sample的
-        # 4. 某些环境会定义 ramdom_action 方法，用 action_space 来做 sample, 但是我记得 DI-star 里 gent 也有 random_action, 所以这个可以免掉
-        # 5. 某些环境的 step 会使用, 看情况
-        # 6. assert限制action
-
-        # 3, 4都是用于拿到random_action的，所以我们只要实现 random_action 的方法, action_space可能也不需要
-        # random_action 和 random_collect 给的data(state, action) 在action层面本质上应该是一回事，就看observation是不是有区别了
         #TODO
         pass
 
@@ -55,7 +43,7 @@ class DIStarEnv(SC2Env,BaseEnv):
         self_unit_types = set()
         
         for u in raw.units:
-            # 简单起见我们只选择除了“正在被制造的建筑物”之外的单位
+            # Here we select the units except “buildings that are in building progress” for simplification
             if u.build_progress == 1:
                 all_unit_types.add(u.unit_type)
                 if u.alliance == 1:
@@ -70,7 +58,7 @@ class DIStarEnv(SC2Env,BaseEnv):
             exist_selected_types = list(self_unit_types.intersection(set(action['selected_type'])))
             exist_target_types = list(all_unit_types.intersection(set(action['target_type'])))
 
-            # 如果这个动作是应该有target_type的，但是当前帧不存在有效的target_type，则抛弃该action
+            # if an action should have target, but we don't have valid target in this observation, then discard this action
             if len(action['target_type']) != 0 and len(exist_target_types) == 0:
                 continue
 
@@ -110,8 +98,7 @@ class DIStarEnv(SC2Env,BaseEnv):
 
     @property
     def reward_space(self):
-        # 作用
-        # 限制reward的范围，就这一个
+
         #TODO
         pass
 
