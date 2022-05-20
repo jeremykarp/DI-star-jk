@@ -7,6 +7,8 @@ import json
 import multiprocessing
 import mpyq
 import argparse
+import six
+import json
 
 from collections import defaultdict
 
@@ -34,6 +36,13 @@ RESULT_DICT = {
     2: 'L',
     3: 'D',
     4: 'U'
+}
+
+
+BUILD2VERSION = {
+    80188: "4.12.1",
+    81009: "5.0.0",
+    81433: "5.0.3"
 }
 
 
@@ -238,7 +247,7 @@ class ReplayDecoder:
         size.assign_to(self._interface.feature_layer.minimap_resolution)
         self._controller.start_replay(
             sc_pb.RequestStartReplay(
-                replay_data=self._replay_data,
+                replay_path=self._replay_path,
                 options=self._interface,
                 observed_player_id=player,
             )
@@ -253,6 +262,12 @@ class ReplayDecoder:
         feature = Features(game_info, raw_ob)
         traj_data = []
         race = RACE_DICT[feature.requested_races[raw_ob.observation.player_common.player_id]]
+        opponent_id = 1 if raw_ob.observation.player_common.player_id == 2 else 2
+        opponent_race = RACE_DICT[feature.requested_races[opponent_id]]
+        if race == opponent_race:
+            mix_race = race
+        else:
+            mix_race = race + opponent_race
         cached_actions = []
         last_last_ob = last_ob = raw_ob
         while cur_loop < game_loops:
@@ -281,10 +296,10 @@ class ReplayDecoder:
         beginning_order = beginning_order.tolist()
         cumulative_stat = cumulative_stat.nonzero().squeeze(dim=1).tolist()
         loop = player_actions[-1].game_loop
-        return beginning_order, cumulative_stat, bo_len, bo_location, feature.home_born_location, race, loop
+        return beginning_order, cumulative_stat, bo_len, bo_location, feature.home_born_location, mix_race, loop
 
     def _parse_replay_info(self):
-        replay_info = self._controller.replay_info(self._replay_data)
+        replay_info = self._controller.replay_info(replay_path=self._replay_path)
         ret = dict()
         ret['race'] = [RACE_DICT[p.player_info.race_actual] for p in replay_info.player_info]
         ret['result'] = [RESULT_DICT[p.player_result.result] for p in replay_info.player_info]
@@ -298,15 +313,17 @@ class ReplayDecoder:
         try:
             replay_path = path
             with open(replay_path, 'rb') as f:
-                archive = mpyq.MPQArchive(f, listfile=False)
-                header_content = archive.header["user_data_header"]["content"]
-                header_data = BitPackedDecoder(header_content).read_struct()
-                versions = list(header_data[1].values())
-                version = "{0}.{1}.{2}".format(*versions[1:4])
-                if version not in VERSIONS:
-                    print(
-                        f'Decode replay ERROR: {replay_path}, no corresponded game version: {version}, use latest in stead.')
-                    version = 'latest'
+                replay_io = six.BytesIO()
+                replay_io.write(f.read())
+                replay_io.seek(0)
+                archive = mpyq.MPQArchive(replay_io).extract()
+                metadata = json.loads(archive[b"replay.gamemetadata.json"].decode("utf-8"))
+                versions = metadata["GameVersion"].split(".")[:-1]
+                build = int(metadata["BaseBuild"][4:])
+                if build in BUILD2VERSION:
+                    versions = BUILD2VERSION[build].split(".")
+                version = "{0}.{1}.{2}".format(*versions)
+                env_path = 'SC2PATH{0}_{1}_{2}'.format(*versions)
 
             if self._version != version or self._restart_count == 10:
                 if self._version is not None:
@@ -317,7 +334,7 @@ class ReplayDecoder:
                     self._restart_count = 0
                     return None
             print(f'Start decoding replay with player {self._player_index}, path: {path}')
-            self._replay_data = self._run_config.replay_data(replay_path)
+            self._replay_path = replay_path
             self._replay_info = self._parse_replay_info()
             if self._replay_info['result'][self._player_index - 1] != 'W':
                 return None
