@@ -15,7 +15,8 @@ from distar.pysc2.lib import actions
 from distar.pysc2.lib import point, colors, static_data
 from distar.pysc2.lib import named_array
 from distar.pysc2.lib import stopwatch
-from distar.pysc2.lib.static_data import BUFFS_REORDER, BUFFS_REORDER_ARRAY, UPGRADES_REORDER_ARRAY, ADDON_REORDER_ARRAY, \
+from distar.pysc2.lib.static_data import BUFFS_REORDER, BUFFS_REORDER_ARRAY, UPGRADES_REORDER_ARRAY, \
+    ADDON_REORDER_ARRAY, \
     UNIT_TYPES_REORDER_ARRAY, NUM_UNIT_TYPES, NUM_UPGRADES
 
 from s2clientprotocol import raw_pb2 as sc_raw
@@ -23,7 +24,8 @@ from distar.pysc2.lib import unit_controls
 from s2clientprotocol import sc2api_pb2 as sc_pb
 from torch import int8, uint8, int16, int32, float32, float16, int64
 
-from .actions import ACTIONS, ABILITY_TO_QUEUE_ACTION, BEGINNING_ORDER_ACTIONS, CUMULATIVE_STAT_ACTIONS, FUNC_ID_TO_ACTION_TYPE_DICT, UNIT_ABILITY_REORDER, NUM_UNIT_MIX_ABILITIES
+from .actions import ACTIONS, ABILITY_TO_QUEUE_ACTION, BEGINNING_ORDER_ACTIONS, CUMULATIVE_STAT_ACTIONS, \
+    FUNC_ID_TO_ACTION_TYPE_DICT, UNIT_ABILITY_REORDER, NUM_UNIT_MIX_ABILITIES
 from collections import defaultdict
 
 sw = stopwatch.sw
@@ -37,7 +39,6 @@ MAX_SELECTED_UNITS_NUM = 64
 MAX_ENTITY_NUM = 512
 EFFECT_LEN = 100
 
-
 SPATIAL_INFO = [('height_map', uint8), ('visibility_map', uint8), ('creep', uint8), ('player_relative', uint8),
                 ('alerts', uint8), ('pathable', uint8), ('buildable', uint8), ('effect_PsiStorm', int16),
                 ('effect_NukeDot', int16), ('effect_LiberatorDefenderZone', int16), ('effect_BlindingCloud', int16),
@@ -46,11 +47,11 @@ SPATIAL_INFO = [('height_map', uint8), ('visibility_map', uint8), ('creep', uint
 # (name, dtype, size)
 SCALAR_INFO = [('home_race', uint8, ()), ('away_race', uint8, ()), ('upgrades', int16, (NUM_UPGRADES,)),
                ('time', float32, ()), ('unit_counts_bow', uint8, (NUM_UNIT_TYPES,)),
-               ('agent_statistics', float32, (10, )),
-               ('cumulative_stat', uint8, (len(CUMULATIVE_STAT_ACTIONS), )),
-               ('beginning_order', int16, (BEGINNING_ORDER_LENGTH, )), ('last_queued', int16, ()),
+               ('agent_statistics', float32, (10,)),
+               ('cumulative_stat', uint8, (len(CUMULATIVE_STAT_ACTIONS),)),
+               ('beginning_order', int16, (BEGINNING_ORDER_LENGTH,)), ('last_queued', int16, ()),
                ('last_delay', int16, ()), ('last_action_type', int16, ()),
-               ('bo_location', int16, (BEGINNING_ORDER_LENGTH, )),
+               ('bo_location', int16, (BEGINNING_ORDER_LENGTH,)),
                ('unit_order_type', uint8, (NUM_UNIT_MIX_ABILITIES,)), ('unit_type_bool', uint8, (NUM_UNIT_TYPES,)),
                ('enemy_unit_type_bool', uint8, (NUM_UNIT_TYPES,))]
 
@@ -67,17 +68,21 @@ ENTITY_INFO = [('unit_type', int16), ('alliance', uint8), ('cargo_space_taken', 
                ('shield_upgrade_level', uint8), ('last_selected_units', int8), ('last_targeted_unit', int8)]
 
 ACTION_INFO = {'action_type': torch.tensor(0, dtype=torch.long), 'delay': torch.tensor(0, dtype=torch.long),
-               'queued': torch.tensor(0, dtype=torch.long), 'selected_units': torch.zeros((MAX_SELECTED_UNITS_NUM,), dtype=torch.long),
+               'queued': torch.tensor(0, dtype=torch.long),
+               'selected_units': torch.zeros((MAX_SELECTED_UNITS_NUM,), dtype=torch.long),
                'target_unit': torch.tensor(0, dtype=torch.long),
                'target_location': torch.tensor(0, dtype=torch.long)}
 
 ACTION_LOGP = {'action_type': torch.tensor(0, dtype=torch.float), 'delay': torch.tensor(0, dtype=torch.float),
-               'queued': torch.tensor(0, dtype=torch.float), 'selected_units': torch.zeros((MAX_SELECTED_UNITS_NUM,), dtype=torch.float),
+               'queued': torch.tensor(0, dtype=torch.float),
+               'selected_units': torch.zeros((MAX_SELECTED_UNITS_NUM,), dtype=torch.float),
                'target_unit': torch.tensor(0, dtype=torch.float),
                'target_location': torch.tensor(0, dtype=torch.float)}
 
-ACTION_LOGIT = {'action_type': torch.zeros(len(ACTIONS), dtype=torch.float), 'delay': torch.zeros(MAX_DELAY + 1, dtype=torch.float),
-                'queued': torch.zeros(2, dtype=torch.float), 'selected_units': torch.zeros((MAX_SELECTED_UNITS_NUM, MAX_ENTITY_NUM + 1), dtype=torch.float),
+ACTION_LOGIT = {'action_type': torch.zeros(len(ACTIONS), dtype=torch.float),
+                'delay': torch.zeros(MAX_DELAY + 1, dtype=torch.float),
+                'queued': torch.zeros(2, dtype=torch.float),
+                'selected_units': torch.zeros((MAX_SELECTED_UNITS_NUM, MAX_ENTITY_NUM + 1), dtype=torch.float),
                 'target_unit': torch.zeros(MAX_ENTITY_NUM, dtype=torch.float),
                 'target_location': torch.zeros(SPATIAL_SIZE[0] * SPATIAL_SIZE[1], dtype=torch.float)}
 
@@ -104,7 +109,7 @@ def fake_step_data(share_memory=False, batch_size=None, train=True, hidden_size=
     for k, dtype, size in SCALAR_INFO:
         scalar_info[k] = torch.zeros(size=size, dtype=dtype)
     for k, dtype in ENTITY_INFO:
-        entity_info[k] = torch.zeros(size=(MAX_ENTITY_NUM, ), dtype=dtype)
+        entity_info[k] = torch.zeros(size=(MAX_ENTITY_NUM,), dtype=dtype)
     action_mask = {'action_type': torch.tensor(1, dtype=torch.bool), 'delay': torch.tensor(1, dtype=torch.bool),
                    'queued': torch.tensor(1, dtype=torch.bool), 'selected_units': torch.tensor(1, dtype=torch.bool),
                    'target_unit': torch.tensor(1, dtype=torch.bool),
@@ -179,12 +184,12 @@ class Effects(enum.IntEnum):
 
 
 class ScoreCategories(enum.IntEnum):
-  """Indices for the `score_by_category` observation's second dimension."""
-  none = 0
-  army = 1
-  economy = 2
-  technology = 3
-  upgrade = 4
+    """Indices for the `score_by_category` observation's second dimension."""
+    none = 0
+    army = 1
+    economy = 2
+    technology = 3
+    upgrade = 4
 
 
 class Player(enum.IntEnum):
@@ -359,7 +364,8 @@ def compute_battle_score(obs):
     for s in ScoreCategories:
         killed_mineral += getattr(score_details.killed_minerals, s.name)
         killed_vespene += getattr(score_details.killed_vespene, s.name)
-    battle_score = killed_mineral + 1.5 * killed_vespene
+    battle_score = (killed_mineral + score_details.collected_minerals) + 1.5 * (
+        killed_vespene + score_details.collected_vespene)
     return battle_score
 
 
@@ -390,7 +396,8 @@ class Features(object):
         born_location = location[0]
         self._born_location = int(born_location[0]) + int(self.map_size.y - born_location[1]) * SPATIAL_SIZE[1]
         away_born_location = game_info.start_raw.start_locations[0]
-        self._away_born_location = int(away_born_location.x) + int(self.map_size.y - away_born_location.y) * SPATIAL_SIZE[1]
+        self._away_born_location = int(away_born_location.x) + int(self.map_size.y - away_born_location.y) * \
+                                                               SPATIAL_SIZE[1]
 
     @property
     def home_born_location(self):
@@ -494,11 +501,13 @@ class Features(object):
 
         # entity info
         tag_types = {}  # Only populate the cache if it's needed.
+
         def get_addon_type(tag):
             if not tag_types:
                 for u in raw.units:
                     tag_types[u.tag] = u.unit_type
             return tag_types.get(tag, 0)
+
         tags = []
         units = []
         for u in raw.units:
@@ -602,32 +611,37 @@ class Features(object):
                     entity_info[k] = UNIT_ABILITY_REORDER[raw_entity_info[:, k]].short()
                     invalid_actions = entity_info[k] == -1
                     if invalid_actions.any():
-                       print('[ERROR] invalid unit ability', raw_entity_info[invalid_actions, k])
+                        print('[ERROR] invalid unit ability', raw_entity_info[invalid_actions, k])
                 else:
                     entity_info[k] = ABILITY_TO_QUEUE_ACTION[raw_entity_info[:, k]].short()
                     invalid_actions = entity_info[k] == -1
                     if invalid_actions.any():
-                       print('[ERROR] invalid queue ability', raw_entity_info[invalid_actions, k])
+                        print('[ERROR] invalid queue ability', raw_entity_info[invalid_actions, k])
             elif 'buff_id' in k:
                 entity_info[k] = BUFFS_REORDER_ARRAY[raw_entity_info[:, k]].short()
             elif k == 'addon_unit_type':
                 entity_info[k] = ADDON_REORDER_ARRAY[raw_entity_info[:, k]].short()
             elif k == 'cargo_space_taken':
-                entity_info[k] = torch.as_tensor(raw_entity_info[:, 'cargo_space_taken'], dtype=dtype).clamp_(min=0, max=8)
+                entity_info[k] = torch.as_tensor(raw_entity_info[:, 'cargo_space_taken'], dtype=dtype).clamp_(min=0,
+                                                                                                              max=8)
             elif k == 'cargo_space_max':
-                entity_info[k] = torch.as_tensor(raw_entity_info[:, 'cargo_space_max'], dtype=dtype).clamp_(min=0, max=8)
+                entity_info[k] = torch.as_tensor(raw_entity_info[:, 'cargo_space_max'], dtype=dtype).clamp_(min=0,
+                                                                                                            max=8)
             elif k == 'health_ratio':
-                entity_info[k] = torch.as_tensor(raw_entity_info[:, 'health'], dtype=dtype) / (torch.as_tensor(raw_entity_info[:, 'health_max'], dtype=dtype) + 1e-6)
+                entity_info[k] = torch.as_tensor(raw_entity_info[:, 'health'], dtype=dtype) / (
+                torch.as_tensor(raw_entity_info[:, 'health_max'], dtype=dtype) + 1e-6)
             elif k == 'shield_ratio':
-                entity_info[k] = torch.as_tensor(raw_entity_info[:, 'shield'], dtype=dtype) / (torch.as_tensor(raw_entity_info[:, 'shield_max'], dtype=dtype) + 1e-6)
+                entity_info[k] = torch.as_tensor(raw_entity_info[:, 'shield'], dtype=dtype) / (
+                torch.as_tensor(raw_entity_info[:, 'shield_max'], dtype=dtype) + 1e-6)
             elif k == 'energy_ratio':
-                entity_info[k] = torch.as_tensor(raw_entity_info[:, 'energy'], dtype=dtype) / (torch.as_tensor(raw_entity_info[:, 'energy_max'], dtype=dtype) + 1e-6)
+                entity_info[k] = torch.as_tensor(raw_entity_info[:, 'energy'], dtype=dtype) / (
+                torch.as_tensor(raw_entity_info[:, 'energy_max'], dtype=dtype) + 1e-6)
             elif k == 'mineral_contents':
                 entity_info[k] = torch.as_tensor(raw_entity_info[:, 'mineral_contents'], dtype=dtype) / 1800
             elif k == 'vespene_contents':
                 entity_info[k] = torch.as_tensor(raw_entity_info[:, 'vespene_contents'], dtype=dtype) / 2500
             elif k == 'y':
-                entity_info[k] = torch.as_tensor(self.map_size.y -  raw_entity_info[:, 'y'], dtype=dtype)
+                entity_info[k] = torch.as_tensor(self.map_size.y - raw_entity_info[:, 'y'], dtype=dtype)
             else:
                 entity_info[k] = torch.as_tensor(raw_entity_info[:, k], dtype=dtype)
 
@@ -656,24 +670,27 @@ class Features(object):
         upgrades = torch.zeros(NUM_UPGRADES, dtype=torch.uint8)
         raw_upgrades = UPGRADES_REORDER_ARRAY[raw.player.upgrade_ids[:UPGRADE_LENGTH]]
         # for u in raw.player.upgrade_ids:
-            #if UPGRADES_REORDER_ARRAY[u] == -1:
-            #    print('[ERROR]', u)
+        # if UPGRADES_REORDER_ARRAY[u] == -1:
+        #    print('[ERROR]', u)
         upgrades.scatter_(dim=0, index=raw_upgrades, value=1.)
         scalar_info["upgrades"] = upgrades
 
         unit_counts_bow = torch.zeros(NUM_UNIT_TYPES, dtype=torch.uint8)
         scalar_info['unit_type_bool'] = torch.zeros(NUM_UNIT_TYPES, dtype=uint8)
         own_unit_types = entity_info['unit_type'][entity_info['alliance'] == 1]
-        scalar_info['unit_counts_bow'] = torch.scatter_add(unit_counts_bow, dim=0, index=own_unit_types.long(), src=torch.ones_like(own_unit_types, dtype=torch.uint8))
+        scalar_info['unit_counts_bow'] = torch.scatter_add(unit_counts_bow, dim=0, index=own_unit_types.long(),
+                                                           src=torch.ones_like(own_unit_types, dtype=torch.uint8))
         scalar_info['unit_type_bool'] = (scalar_info['unit_counts_bow'] > 0).to(uint8)
 
         scalar_info['unit_order_type'] = torch.zeros(NUM_UNIT_MIX_ABILITIES, dtype=uint8)
         own_unit_orders = entity_info['order_id_0'][entity_info['alliance'] == 1]
-        scalar_info['unit_order_type'].scatter_(0, own_unit_orders.long(), torch.ones_like(own_unit_orders, dtype=uint8))
+        scalar_info['unit_order_type'].scatter_(0, own_unit_orders.long(),
+                                                torch.ones_like(own_unit_orders, dtype=uint8))
 
         enemy_unit_types = entity_info['unit_type'][entity_info['alliance'] == 4]
         enemy_unit_type_bool = torch.zeros(NUM_UNIT_TYPES, dtype=torch.uint8)
-        scalar_info['enemy_unit_type_bool'] = torch.scatter(enemy_unit_type_bool, dim=0, index=enemy_unit_types.long(), src=torch.ones_like(enemy_unit_types, dtype=torch.uint8))
+        scalar_info['enemy_unit_type_bool'] = torch.scatter(enemy_unit_type_bool, dim=0, index=enemy_unit_types.long(),
+                                                            src=torch.ones_like(enemy_unit_types, dtype=torch.uint8))
 
         # game info
         game_info['map_name'] = self._map_name
@@ -683,9 +700,10 @@ class Features(object):
         game_info['battle_score'] = compute_battle_score(obs)
         game_info['opponent_battle_score'] = 0.
         ret = {
-            'spatial_info': spatial_info, 'scalar_info': scalar_info, 'entity_num': torch.tensor(len(entity_info['unit_type']), dtype=torch.long),
+            'spatial_info': spatial_info, 'scalar_info': scalar_info,
+            'entity_num': torch.tensor(len(entity_info['unit_type']), dtype=torch.long),
             'entity_info': entity_info, 'game_info': game_info,
-            }
+        }
 
         # value feature
         if opponent_obs:
@@ -705,7 +723,6 @@ class Features(object):
             enemy_unit_counts_bow = torch.scatter_add(enemy_unit_counts_bow, dim=0, index=enemy_unit_type.long(),
                                                       src=torch.ones_like(enemy_unit_type, dtype=torch.uint8))
             enemy_unit_type_bool = (enemy_unit_counts_bow > 0).to(uint8)
-
 
             unit_type = torch.cat([enemy_unit_type, own_unit_types], dim=0)
             enemy_x = torch.as_tensor(enemy_x, dtype=uint8)
@@ -729,7 +746,7 @@ class Features(object):
                 unit_y = unit_y[:MAX_ENTITY_NUM]
                 unit_type = unit_type[:MAX_ENTITY_NUM]
                 unit_alliance = unit_alliance[:MAX_ENTITY_NUM]
-            
+
             total_unit_count = torch.tensor(total_unit_count, dtype=torch.long)
 
             player = opponent_obs.observation.player_common
@@ -761,7 +778,8 @@ class Features(object):
                              'enemy_unit_type_bool': enemy_unit_type_bool, 'unit_x': unit_x, 'unit_y': unit_y,
                              'unit_alliance': unit_alliance, 'total_unit_count': total_unit_count,
                              'enemy_agent_statistics': enemy_agent_statistics, 'enemy_upgrades': enemy_upgrades,
-                             'own_units_spatial': own_units_spatial.unsqueeze(dim=0), 'enemy_units_spatial': enemy_units_spatial.unsqueeze(dim=0)}
+                             'own_units_spatial': own_units_spatial.unsqueeze(dim=0),
+                             'enemy_units_spatial': enemy_units_spatial.unsqueeze(dim=0)}
             ret['value_feature'] = value_feature
             game_info['opponent_battle_score'] = compute_battle_score(opponent_obs)
         return ret
@@ -852,7 +870,8 @@ class Features(object):
 
     @sw.decorate
     def reverse_raw_action(self, action, raw_tags):
-        action_ret = {'action_type': None, 'delay': torch.tensor(0, dtype=torch.long), 'queued': None, 'selected_units': None, 'target_unit': None, 'target_location': None}
+        action_ret = {'action_type': None, 'delay': torch.tensor(0, dtype=torch.long), 'queued': None,
+                      'selected_units': None, 'target_unit': None, 'target_location': None}
         last_selected_unit_tags = None
         last_target_unit_tag = None
         invalid_action_flag = False
@@ -866,7 +885,7 @@ class Features(object):
             if ability_id in frivolous:
                 return None
             elif ability_id in unload_unit:
-                ability_id = 3664 # unload all
+                ability_id = 3664  # unload all
             elif ability_id in cancel_slot:
                 ability_id = 3671  # cancel_slot to cancel_quick
             general_id = next(iter(actions.RAW_ABILITY_IDS[ability_id])).general_id
@@ -903,7 +922,7 @@ class Features(object):
             elif uc.HasField("target_world_space_pos"):
                 x = min(int(uc.target_world_space_pos.x), self.map_size.x - 1)
                 y = min(self.map_size.y - int(uc.target_world_space_pos.y), self.map_size.y - 1)
-                label = y * SPATIAL_SIZE[1] + x 
+                label = y * SPATIAL_SIZE[1] + x
                 action_ret['target_location'] = torch.tensor(label, dtype=torch.long)
                 action_ret['action_type'] = transfer_action_type(ability_id, actions.raw_cmd_pt)
             else:
@@ -925,7 +944,7 @@ class Features(object):
             action_ret['action_type'] = torch.tensor(action_ret['action_type'], dtype=torch.long)
         else:
             invalid_action_flag = True
-        
+
         if len(units) and not invalid_action_flag:
             last_selected_unit_tags = tags
             units.append(len(raw_tags))  # add end flag
@@ -934,7 +953,6 @@ class Features(object):
         else:
             invalid_action_flag = True
             selected_units_num = torch.tensor(0, dtype=torch.long)
-            
 
         action_mask = {}
         for k, v in action_ret.items():
