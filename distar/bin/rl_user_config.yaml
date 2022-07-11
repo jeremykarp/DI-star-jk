@@ -1,7 +1,7 @@
 var1: &model_path 'default'
 
 common:
-  experiment_name: 'rl_11'  # logger and checkpoint will be saved in this directory
+  experiment_name: 'rl_12'  # logger and checkpoint will be saved in this directory
 communication:
   coordinator_ip: '127.0.0.1' # coordinator server address, also used for league server, run coordinator and league on the node you specified
   coordinator_port: 23333  # coordinator server port
@@ -12,7 +12,7 @@ communication:
   adapter_model_worker_num: 1  # how many workers are used for exchaning model metadata in coordinator
   adapter_traj_worker_num: 6  # how many workers are used for exchaning trajcetory metadata in coordinator
   actor_model_update_interval: 10  # seconds, actor will update their models every 10 seconds
-  actor_ask_for_job_interval: 360 # seconds, actor will ask for a new job every 3600 seconds
+  actor_ask_for_job_interval: 360000 # seconds, actor will ask for a new job every 3600 seconds
   model_fs_type: 'torch' # model serilization method in tcp communication
 agent:
   zero_z_exceed_loop: True  # set Z to 0 if game passes the game loop in Z
@@ -39,7 +39,7 @@ learner:
   steps: 100000000  # max step for training
   su_mask: False  # whether to use selected units mask
   use_dapo: False  # whether to use dapo in TstarBotX
-  learning_rate: 0.00002
+  learning_rate: 0.000005
   weight_decay: 0  # weight decay in adam
   var_record_type: 'alphastar'  # log type
   value_pretrain_iters: 100  # max step for value pretrain
