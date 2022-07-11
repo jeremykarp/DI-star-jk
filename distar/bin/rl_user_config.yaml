@@ -12,7 +12,7 @@ communication:
   adapter_model_worker_num: 1  # how many workers are used for exchaning model metadata in coordinator
   adapter_traj_worker_num: 6  # how many workers are used for exchaning trajcetory metadata in coordinator
   actor_model_update_interval: 10  # seconds, actor will update their models every 10 seconds
-  actor_ask_for_job_interval: 360 # seconds, actor will ask for a new job every 3600 seconds
+  actor_ask_for_job_interval: 360000 # seconds, actor will ask for a new job every 3600 seconds
   model_fs_type: 'torch' # model serilization method in tcp communication
 agent:
   zero_z_exceed_loop: True  # set Z to 0 if game passes the game loop in Z
