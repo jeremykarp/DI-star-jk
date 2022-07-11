@@ -1,7 +1,7 @@
 var1: &model_path 'default'
 
 common:
-  experiment_name: 'rl_9'  # logger and checkpoint will be saved in this directory
+  experiment_name: 'rl_10'  # logger and checkpoint will be saved in this directory
 communication:
   coordinator_ip: '127.0.0.1' # coordinator server address, also used for league server, run coordinator and league on the node you specified
   coordinator_port: 23333  # coordinator server port
@@ -39,10 +39,10 @@ learner:
   steps: 100000000  # max step for training
   su_mask: False  # whether to use selected units mask
   use_dapo: False  # whether to use dapo in TstarBotX
-  learning_rate: 0.0001
+  learning_rate: 0.00002
   weight_decay: 0  # weight decay in adam
   var_record_type: 'alphastar'  # log type
-  value_pretrain_iters: 0  # max step for value pretrain
+  value_pretrain_iters: 100  # max step for value pretrain
   optimizer_warm_up_iters: 100  # warm up adam optimizer without updating model
   reset_env_wait_time: 60  # reset environment in actor after model reloading.
   grad_clip:
