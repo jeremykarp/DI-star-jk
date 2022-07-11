@@ -35,7 +35,7 @@ class Stat(object):
         data = {}
         for k, v in self._unit_num.items():
             if k != 'max_unit_num':
-                data['units/' + k] = v / self._unit_num['max_unit_num']
+                data['units/' + k] = v / max(self._unit_num['max_unit_num'], 1.0)
         for k, v in self._action_success_count.items():
             action_type = k.split('rate/')[1].split('/')[0]
             if 'count' in k:
