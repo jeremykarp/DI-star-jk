@@ -39,7 +39,7 @@ learner:
   steps: 100000000  # max step for training
   su_mask: False  # whether to use selected units mask
   use_dapo: False  # whether to use dapo in TstarBotX
-  learning_rate: 0.00002
+  learning_rate: 0.000005
   weight_decay: 0  # weight decay in adam
   var_record_type: 'alphastar'  # log type
   value_pretrain_iters: 100  # max step for value pretrain
