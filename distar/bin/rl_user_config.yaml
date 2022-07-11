@@ -42,7 +42,7 @@ learner:
   learning_rate: 0.000005
   weight_decay: 0  # weight decay in adam
   var_record_type: 'alphastar'  # log type
-  value_pretrain_iters: 100  # max step for value pretrain
+  value_pretrain_iters: 1000  # max step for value pretrain
   optimizer_warm_up_iters: 100  # warm up adam optimizer without updating model
   reset_env_wait_time: 60  # reset environment in actor after model reloading.
   grad_clip:
@@ -54,7 +54,7 @@ learner:
     num_workers: 2  # workers request data from actor
     use_async_cuda: False  # put data to gpu in an asynchronous way
     data_path_queue_size: 2  # how many data are stored in queue
-    trajectory_length: 16
+    trajectory_length: 32
   loss_weights: 
       baseline:  # loss weight for critic
           winloss: 10.0 #10.0
@@ -128,7 +128,7 @@ actor:
   env_num: 12  # enviroment number
   episode_num: 100  # episode number
   print_freq: 1000  # log frequency in actor log
-  traj_len: 16  # trajectory length, should be same as trajectory length in learner
+  traj_len: 32  # trajectory length, should be same as trajectory length in learner
   use_cuda: False  # whether to use gpu in 'train_test' or 'eval_test'
   fake_model: False # if True, skip model loading
   player_ids: ['model1', 'model2']  # player ids used in RL
