@@ -1,7 +1,7 @@
 var1: &model_path 'default'
 
 common:
-  experiment_name: 'rl_10'  # logger and checkpoint will be saved in this directory
+  experiment_name: 'rl_11'  # logger and checkpoint will be saved in this directory
 communication:
   coordinator_ip: '127.0.0.1' # coordinator server address, also used for league server, run coordinator and league on the node you specified
   coordinator_port: 23333  # coordinator server port
@@ -10,9 +10,9 @@ communication:
   learner_send_model_freq: 4  # learner will send model to actor at this frequency
   learner_send_model_worker_num: 1  # how many workers are used for sending models
   adapter_model_worker_num: 1  # how many workers are used for exchaning model metadata in coordinator
-  adapter_traj_worker_num: 4  # how many workers are used for exchaning trajcetory metadata in coordinator
+  adapter_traj_worker_num: 6  # how many workers are used for exchaning trajcetory metadata in coordinator
   actor_model_update_interval: 10  # seconds, actor will update their models every 10 seconds
-  actor_ask_for_job_interval: 3600 # seconds, actor will ask for a new job every 3600 seconds
+  actor_ask_for_job_interval: 360 # seconds, actor will ask for a new job every 3600 seconds
   model_fs_type: 'torch' # model serilization method in tcp communication
 agent:
   zero_z_exceed_loop: True  # set Z to 0 if game passes the game loop in Z
@@ -118,14 +118,14 @@ learner:
   hook:
     save_ckpt_after_iter:
       ext_args:
-        freq: 1000  # save checkpoint frenquency
+        freq: 200  # save checkpoint frenquency
 model:
   enable_baselines: ['winloss', 'battle']  # multiple values chosen from ['winloss', 'build_order', 'built_unit', 'battle'] of which value network should be enabled
 actor:
   job_type: 'train' 
   # one of ['train', 'eval', 'train_test', 'eval_test'], train used for RL, eval used for evaluation, '_test' indicates use only one environment without multiprocessing
   gpu_batch_inference: False  # whether to use gpu for batch inference
-  env_num: 1  # enviroment number
+  env_num: 7  # enviroment number
   episode_num: 100  # episode number
   print_freq: 1000  # log frequency in actor log
   traj_len: 16  # trajectory length, should be same as trajectory length in learner

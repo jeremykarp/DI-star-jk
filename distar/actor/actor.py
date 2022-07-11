@@ -335,7 +335,7 @@ class Actor(object):
                         start_time = time.time()
                         while True:
                             if time.time() - start_time > self.max_job_duration:
-                                self.reset()
+                                self.close()  # self.reset()
                             self._comm.update_model(self)
                             time.sleep(1)
                 if self._job_type == 'eval':
