@@ -250,8 +250,8 @@ class Agent:
                 self._old_bo_reward = torch.tensor(0.)
             self._old_cum_reward = -hamming_distance(torch.as_tensor(self._behaviour_cumulative_stat, dtype=torch.float),
                                                        self._target_cumulative_stat)/ self._cum_norm
-            self._total_bo_reward = torch.zeros(size=(), dtype=torch.float)
-            self._total_cum_reward = torch.zeros(size=(), dtype=torch.float)
+        self._total_bo_reward = torch.zeros(size=(), dtype=torch.float)
+        self._total_cum_reward = torch.zeros(size=(), dtype=torch.float)
 
 
     def _pre_process(self, obs):

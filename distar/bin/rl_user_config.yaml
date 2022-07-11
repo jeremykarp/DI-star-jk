@@ -145,7 +145,7 @@ env:
   map_name: 'KairosJunction'
   map_size_resolutions: [True, True]  # if True, ignore minimap_resolutions
   minimap_resolutions: [[160, 152], [160, 152]]   # minimap feature resulution, used in interface option
-  realtime: False  # whether to use realtime in game, set True when play with human
+  realtime: True  # whether to use realtime in game, set True when play with human
   replay_dir: './replays' # where to save replay, '.' means saved at current working directory
   game_steps_per_episode: 40000  # maximum step in one game, the game will end when it reaches the game step
   update_both_obs: True  # request opponent's observation in own observation, set True if you use value feature in learner
