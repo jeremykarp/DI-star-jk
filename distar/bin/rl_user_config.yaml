@@ -1,7 +1,7 @@
 var1: &model_path 'default'
 
 common:
-  experiment_name: 'rl_7'  # logger and checkpoint will be saved in this directory
+  experiment_name: 'rl_8'  # logger and checkpoint will be saved in this directory
 communication:
   coordinator_ip: '127.0.0.1' # coordinator server address, also used for league server, run coordinator and league on the node you specified
   coordinator_port: 23333  # coordinator server port
@@ -125,7 +125,7 @@ actor:
   job_type: 'train' 
   # one of ['train', 'eval', 'train_test', 'eval_test'], train used for RL, eval used for evaluation, '_test' indicates use only one environment without multiprocessing
   gpu_batch_inference: False  # whether to use gpu for batch inference
-  env_num: 3  # enviroment number
+  env_num: 1  # enviroment number
   episode_num: 100  # episode number
   print_freq: 1000  # log frequency in actor log
   traj_len: 16  # trajectory length, should be same as trajectory length in learner
@@ -145,9 +145,9 @@ env:
   map_name: 'KairosJunction'
   map_size_resolutions: [True, True]  # if True, ignore minimap_resolutions
   minimap_resolutions: [[160, 152], [160, 152]]   # minimap feature resulution, used in interface option
-  realtime: True  # whether to use realtime in game, set True when play with human
+  realtime: False  # whether to use realtime in game, set True when play with human
   replay_dir: './replays' # where to save replay, '.' means saved at current working directory
-  game_steps_per_episode: 40000  # maximum step in one game, the game will end when it reaches the game step
+  game_steps_per_episode: 30000  # maximum step in one game, the game will end when it reaches the game step
   update_both_obs: True  # request opponent's observation in own observation, set True if you use value feature in learner
   save_replay_episodes: 1  # save replay interval
   save_replay: True  # whether to save replay
