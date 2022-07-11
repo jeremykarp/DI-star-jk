@@ -625,7 +625,7 @@ class Agent:
         battle_reward = battle_score - self._game_info['battle_score'] - (opponent_battle_score - self._game_info['opponent_battle_score'])
         battle_reward = torch.tensor(battle_reward, dtype=torch.float) / self._battle_norm
 
-        if not self._exceed_flag:
+        if not self._exceed_flag or True:
             return bo_reward, cum_reward, battle_reward
 
         if action_type in BEGINNING_ORDER_ACTIONS and next_obs['action_result'][0] == 1:
