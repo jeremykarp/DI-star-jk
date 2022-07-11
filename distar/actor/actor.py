@@ -367,7 +367,12 @@ class Actor(object):
     def _close_processes(self):
         if hasattr(self, '_processes'):
             for p in self.pipes:
-                p.send('close')
+                try:
+                    p.send('close')
+                except Exception as e:
+                    print("Avoided broken pipe error")
+                    print('[RESET ERROR]', e, flush=True)
+                    print(''.join(traceback.format_tb(e.__traceback__)), flush=True)
             for p in self._processes:
                 p.join()
 
