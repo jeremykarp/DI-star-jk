@@ -1,7 +1,7 @@
 var1: &model_path 'default'
 
 common:
-  experiment_name: 'rl_train_battle'  # logger and checkpoint will be saved in this directory
+  experiment_name: 'rl_tmp'  # logger and checkpoint will be saved in this directory
 communication:
   coordinator_ip: '127.0.0.1' # coordinator server address, also used for league server, run coordinator and league on the node you specified
   coordinator_port: 23333  # coordinator server port
