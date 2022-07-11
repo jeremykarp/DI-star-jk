@@ -352,7 +352,7 @@ class Actor(object):
 
     def reset(self):
         self._logger.info('actor reset multi-process')
-        self._close_processes()
+        # self._close_processes()
         self._comm.ask_for_job(self)
         self._start_multi_inference_loop()
 
@@ -367,12 +367,7 @@ class Actor(object):
     def _close_processes(self):
         if hasattr(self, '_processes'):
             for p in self.pipes:
-                try:
-                    p.send('close')
-                except Exception as e:
-                    print("Avoided broken pipe error")
-                    print('[RESET ERROR]', e, flush=True)
-                    print(''.join(traceback.format_tb(e.__traceback__)), flush=True)
+                p.send('close')
             for p in self._processes:
                 p.join()
 
