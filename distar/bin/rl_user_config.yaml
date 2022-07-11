@@ -1,7 +1,7 @@
 var1: &model_path 'default'
 
 common:
-  experiment_name: 'rl_2'  # logger and checkpoint will be saved in this directory
+  experiment_name: 'rl_3'  # logger and checkpoint will be saved in this directory
 communication:
   coordinator_ip: '127.0.0.1' # coordinator server address, also used for league server, run coordinator and league on the node you specified
   coordinator_port: 23333  # coordinator server port
@@ -49,12 +49,12 @@ learner:
     type: 'pytorch_norm'  # gradient clip, one of ['max_norm', 'clip_value', 'none', 'clip_const', 'pytorch_norm', 'momentum_norm'], you can find more info at distar/ctoos/torh_utils/grad_clip.py
     threshold: 1.0  # threshold for gradient clip
   data:
-    buffer_size: 8  # replay buffer size in learner, should be larger than batch_size
-    batch_size: 6
-    num_workers: 4  # workers request data from actor
+    buffer_size: 6  # replay buffer size in learner, should be larger than batch_size
+    batch_size: 4
+    num_workers: 2  # workers request data from actor
     use_async_cuda: False  # put data to gpu in an asynchronous way
     data_path_queue_size: 2  # how many data are stored in queue
-    trajectory_length: 32
+    trajectory_length: 16
   loss_weights: 
       baseline:  # loss weight for critic
           winloss: 10.0 #10.0
