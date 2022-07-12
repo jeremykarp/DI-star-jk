@@ -1,7 +1,7 @@
 var1: &model_path 'default'
 
 common:
-  experiment_name: 'rl_13'  # logger and checkpoint will be saved in this directory
+  experiment_name: 'rl_15'  # logger and checkpoint will be saved in this directory
 communication:
   coordinator_ip: '127.0.0.1' # coordinator server address, also used for league server, run coordinator and league on the node you specified
   coordinator_port: 23333  # coordinator server port
@@ -39,7 +39,7 @@ learner:
   steps: 100000000  # max step for training
   su_mask: False  # whether to use selected units mask
   use_dapo: False  # whether to use dapo in TstarBotX
-  learning_rate: 0.000005
+  learning_rate: 0.00001
   weight_decay: 0  # weight decay in adam
   var_record_type: 'alphastar'  # log type
   value_pretrain_iters: 1000  # max step for value pretrain
@@ -62,14 +62,14 @@ learner:
           built_unit: 0.0
           effect: 0.0
           upgrade: 0.0
-          battle: 5.0
+          battle: 0.0
       pg:  # vtrace loss weight for policy
           winloss: 1.0
           build_order: 0.0
           built_unit: 0.0
           effect: 0.0
           upgrade: 0.0
-          battle: 0.5
+          battle: 0.0
       upgo: # loss weight for upgo
           winloss: 1.0
       kl: 0.002  # loss weight for kl divergency from teacher model
@@ -118,9 +118,9 @@ learner:
   hook:
     save_ckpt_after_iter:
       ext_args:
-        freq: 200  # save checkpoint frenquency
+        freq: 1000  # save checkpoint frenquency
 model:
-  enable_baselines: ['winloss', 'battle']  # multiple values chosen from ['winloss', 'build_order', 'built_unit', 'battle'] of which value network should be enabled
+  enable_baselines: ['winloss']  # multiple values chosen from ['winloss', 'build_order', 'built_unit', 'battle'] of which value network should be enabled
 actor:
   job_type: 'train' 
   # one of ['train', 'eval', 'train_test', 'eval_test'], train used for RL, eval used for evaluation, '_test' indicates use only one environment without multiprocessing
