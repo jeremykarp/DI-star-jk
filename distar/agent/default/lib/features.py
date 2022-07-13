@@ -371,6 +371,19 @@ def compute_battle_score(obs):
     return battle_score
 
 
+def compute_battle_reward(agent_obs, prev_agent_obs):
+    if agent_obs is None or prev_agent_obs is None:
+        return 0.
+    obs = agent_obs['game_info']['raw_obs']
+    prev_obs = prev_agent_obs['game_info']['raw_obs']
+    opponent_obs = agent_obs['game_info']['opponent_obs']
+    prev_opponenet_obs = prev_agent_obs['game_info']['opponent_obs']
+    battle_reward = (compute_battle_score(obs) - compute_battle_score(prev_obs)) - \
+                    (compute_battle_score(opponent_obs) - compute_battle_score(prev_opponenet_obs))
+    return battle_reward
+
+
+
 class Features(object):
     def __init__(self, game_info, raw_ob, cfg={}):
         self._map_size = game_info.start_raw.map_size

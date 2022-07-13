@@ -19,7 +19,7 @@ from torch.utils.data._utils.collate import default_collate
 
 from .model.model import Model
 from .lib.actions import NUM_CUMULATIVE_STAT_ACTIONS, ACTIONS, BEGINNING_ORDER_ACTIONS, CUMULATIVE_STAT_ACTIONS, UNIT_ABILITY_TO_ACTION, QUEUE_ACTIONS, UNIT_TO_CUM, UPGRADE_TO_CUM
-from .lib.features import Features, SPATIAL_SIZE, BEGINNING_ORDER_ACTIONS, CUMULATIVE_STAT_ACTIONS, BEGINNING_ORDER_LENGTH, ScoreCategories, compute_battle_score, fake_step_data, fake_model_output
+from .lib.features import Features, SPATIAL_SIZE, BEGINNING_ORDER_ACTIONS, CUMULATIVE_STAT_ACTIONS, BEGINNING_ORDER_LENGTH, ScoreCategories, compute_battle_score, compute_battle_reward, fake_step_data, fake_model_output
 from .lib.stat import Stat, cum_dict
 from distar.ctools.torch_utils.metric import levenshtein_distance, hamming_distance, l2_distance
 from distar.pysc2.lib.units import get_unit_type
@@ -117,6 +117,8 @@ class Agent:
         self._env_id = env_id
         self._gpu_batch_inference = self._whole_cfg.actor.get('gpu_batch_inference', False)
         self.z_idx = None
+        self._observation = None
+        self._prev_observation = None
         if self._whole_cfg.env.realtime:
             data = fake_step_data(share_memory=True, batch_size=1, hidden_size=self._hidden_size,
                                                hidden_layer=self._num_layers, train=False)
@@ -156,6 +158,7 @@ class Agent:
         self._last_location = None  # [x, y]
         self._enemy_unit_type_bool = torch.zeros(NUM_UNIT_TYPES, dtype=torch.uint8)
         self._observation = None
+        self._prev_observation = None
         self._output = None
         self._iter_count = 0
         self._model_last_iter = 0
@@ -292,6 +295,7 @@ class Agent:
         else:
             agent_obs['scalar_info']['cumulative_stat'] = self._target_cumulative_stat * 0 + self._zero_z_value
 
+        self._prev_observation = copy.deepcopy(self._observation)
         self._observation = agent_obs
         if self._whole_cfg.actor.use_cuda:
             agent_obs = to_device(agent_obs, 'cuda:0')
@@ -622,7 +626,8 @@ class Agent:
 
         battle_score = compute_battle_score(next_obs['raw_obs'])
         opponent_battle_score = compute_battle_score(next_obs['opponent_obs'])
-        battle_reward = battle_score - self._game_info['battle_score'] - (opponent_battle_score - self._game_info['opponent_battle_score'])
+        battle_reward = compute_battle_reward(self._observation, self._prev_observation)
+        #  battle_reward = battle_score - self._game_info['battle_score'] - (opponent_battle_score - self._game_info['opponent_battle_score'])
         battle_reward = torch.tensor(battle_reward, dtype=torch.float) / self._battle_norm
         if next_obs['raw_obs'].observation.game_loop > 3000:
             print(next_obs['raw_obs'].observation.game_loop, battle_score,
