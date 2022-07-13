@@ -569,8 +569,8 @@ class Agent:
         }
         ##TODO: add value feature
         if self._use_value_feature:
-            step_data['value_feature'] = agent_obs['value_feature']
-            step_data['value_feature'].update(behavior_z)
+            step_data['value_feature'] = 0  # agent_obs['value_feature']
+            #step_data['value_feature'].update(behavior_z)
         if self._whole_cfg.learner.use_dapo:
             step_data['successive_logit'] = successive_output['logit']
         self._hidden_state_backup = self._hidden_state
@@ -606,8 +606,8 @@ class Agent:
                     'hidden_state': self._hidden_state,
                 })
             if self._use_value_feature:
-                last_step_data['value_feature'] = agent_obs['value_feature']
-                last_step_data['value_feature'].update(self.get_behavior_z())
+                last_step_data['value_feature'] = 0  #  agent_obs['value_feature']
+                #  last_step_data['value_feature'].update(self.get_behavior_z())
             list_data = list(self._data_buffer)
             list_data.append(last_step_data)
             self._push_count = 0
@@ -631,16 +631,20 @@ class Agent:
 
         battle_score = compute_battle_score(next_obs['raw_obs'])
         opponent_battle_score = compute_battle_score(next_obs['opponent_obs'])
-        battle_reward = compute_battle_reward(self._game_info, self._prev_game_info)
+        battle_reward_num = compute_battle_reward(self._game_info, self._prev_game_info)
         #  battle_reward = battle_score - self._game_info['battle_score'] - (opponent_battle_score - self._game_info['opponent_battle_score'])
-        battle_reward = torch.tensor(battle_reward, dtype=torch.float) / self._battle_norm
+        battle_reward = torch.tensor(battle_reward_num, dtype=torch.float) / self._battle_norm
         if next_obs['raw_obs'].observation.game_loop > 3000:
             print(next_obs['raw_obs'].observation.game_loop, battle_score,
                   opponent_battle_score,
                   self._game_info['battle_score'],
                   self._game_info['opponent_battle_score'],
+                  self._prev_game_info['battle_score'],
+                  self._prev_game_info['opponent_battle_score'],
+                  battle_reward_num,
                   battle_reward,
                   self._battle_norm)
+            import pdb; pdb.set_trace()
 
         if not self._exceed_flag or True:
             return bo_reward, cum_reward, battle_reward
