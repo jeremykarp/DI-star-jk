@@ -374,12 +374,12 @@ def compute_battle_score(obs):
 def compute_battle_reward(agent_obs, prev_agent_obs):
     if agent_obs is None or prev_agent_obs is None:
         return 0.
-    obs = agent_obs['raw_obs']
-    prev_obs = prev_agent_obs['raw_obs']
-    opponent_obs = agent_obs['opponent_obs']
-    prev_opponenet_obs = prev_agent_obs['opponent_obs']
-    battle_reward = (compute_battle_score(obs) - compute_battle_score(prev_obs)) - \
-                    (compute_battle_score(opponent_obs) - compute_battle_score(prev_opponenet_obs))
+    battle_score = agent_obs['battle_score']
+    prev_battle_score = prev_agent_obs['battle_score']
+    opponent_battle_score = agent_obs['opponent_battle_score']
+    prev_opponent_battle_score = prev_agent_obs['opponent_battle_score']
+    battle_reward = (battle_score - prev_battle_score) - \
+                    (opponent_battle_score - prev_opponent_battle_score)
     return battle_reward
 
 
