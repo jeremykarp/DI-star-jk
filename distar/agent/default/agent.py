@@ -119,6 +119,8 @@ class Agent:
         self.z_idx = None
         self._observation = None
         self._prev_observation = None
+        self._game_info = None
+        self._prev_game_info = None
         if self._whole_cfg.env.realtime:
             data = fake_step_data(share_memory=True, batch_size=1, hidden_size=self._hidden_size,
                                                hidden_layer=self._num_layers, train=False)
@@ -159,6 +161,8 @@ class Agent:
         self._enemy_unit_type_bool = torch.zeros(NUM_UNIT_TYPES, dtype=torch.uint8)
         self._observation = None
         self._prev_observation = None
+        self._game_info = None
+        self._prev_game_info = None
         self._output = None
         self._iter_count = 0
         self._model_last_iter = 0
@@ -262,6 +266,7 @@ class Agent:
             agent_obs = self._feature.transform_obs(obs['raw_obs'], padding_spatial=True, opponent_obs=obs['opponent_obs'])
         else:
             agent_obs = self._feature.transform_obs(obs['raw_obs'], padding_spatial=True)
+        self._prev_game_info = copy.deepcopy(self._game_info)
         self._game_info = agent_obs.pop('game_info')
         self._game_step = self._game_info['game_loop']
         if self._zero_z_exceed_loop and self._game_step > self._target_z_loop:
@@ -295,7 +300,7 @@ class Agent:
         else:
             agent_obs['scalar_info']['cumulative_stat'] = self._target_cumulative_stat * 0 + self._zero_z_value
 
-        self._prev_observation = copy.deepcopy(self._observation)
+        #  self._prev_observation = copy.deepcopy(self._observation)
         self._observation = agent_obs
         if self._whole_cfg.actor.use_cuda:
             agent_obs = to_device(agent_obs, 'cuda:0')
@@ -626,7 +631,7 @@ class Agent:
 
         battle_score = compute_battle_score(next_obs['raw_obs'])
         opponent_battle_score = compute_battle_score(next_obs['opponent_obs'])
-        battle_reward = compute_battle_reward(self._observation, self._prev_observation)
+        battle_reward = compute_battle_reward(self._game_info, self._prev_game_info)
         #  battle_reward = battle_score - self._game_info['battle_score'] - (opponent_battle_score - self._game_info['opponent_battle_score'])
         battle_reward = torch.tensor(battle_reward, dtype=torch.float) / self._battle_norm
         if next_obs['raw_obs'].observation.game_loop > 3000:

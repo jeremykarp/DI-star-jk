@@ -1,7 +1,7 @@
 var1: &model_path 'default'
 
 common:
-  experiment_name: 'rl_16'  # logger and checkpoint will be saved in this directory
+  experiment_name: 'rl_17_test'  # logger and checkpoint will be saved in this directory
 communication:
   coordinator_ip: '127.0.0.1' # coordinator server address, also used for league server, run coordinator and league on the node you specified
   coordinator_port: 23333  # coordinator server port
@@ -125,7 +125,7 @@ actor:
   job_type: 'train' 
   # one of ['train', 'eval', 'train_test', 'eval_test'], train used for RL, eval used for evaluation, '_test' indicates use only one environment without multiprocessing
   gpu_batch_inference: False  # whether to use gpu for batch inference
-  env_num: 12  # enviroment number
+  env_num: 1  # enviroment number
   episode_num: 100  # episode number
   print_freq: 1000  # log frequency in actor log
   traj_len: 16  # trajectory length, should be same as trajectory length in learner
