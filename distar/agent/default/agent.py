@@ -624,6 +624,7 @@ class Agent:
         opponent_battle_score = compute_battle_score(next_obs['opponent_obs'])
         battle_reward = battle_score - self._game_info['battle_score'] - (opponent_battle_score - self._game_info['opponent_battle_score'])
         battle_reward = torch.tensor(battle_reward, dtype=torch.float) / self._battle_norm
+        import pdb; pdb.set_trace()
 
         if not self._exceed_flag or True:
             return bo_reward, cum_reward, battle_reward
