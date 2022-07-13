@@ -262,8 +262,6 @@ class Agent:
 
 
     def _pre_process(self, obs):
-        if obs['raw_obs'].observation.game_loop >= 5000:
-            import pdb; pdb.set_trace()
         if self._use_value_feature:
             agent_obs = self._feature.transform_obs(obs['raw_obs'], padding_spatial=True, opponent_obs=obs['opponent_obs'])
         else:
@@ -646,7 +644,6 @@ class Agent:
                   battle_reward_num,
                   battle_reward,
                   self._battle_norm)
-            import pdb; pdb.set_trace()
 
         if not self._exceed_flag or True:
             return bo_reward, cum_reward, battle_reward
