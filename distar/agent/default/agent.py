@@ -321,7 +321,6 @@ class Agent:
             self._update_fake_reward(self._last_action_type, self._last_location, observation)
         model_input = self._pre_process(observation)
         self._stat_api.update(self._last_action_type, observation['action_result'][0], self._observation, self._game_step)
-        import pdb; pdb.set_trace()
         if not self._gpu_batch_inference:
             model_output = self.model.compute_logp_action(**model_input)
         else:
@@ -574,8 +573,8 @@ class Agent:
         }
         ##TODO: add value feature
         if self._use_value_feature:
-            step_data['value_feature'] = 0  # agent_obs['value_feature']
-            #step_data['value_feature'].update(behavior_z)
+            step_data['value_feature'] = agent_obs['value_feature']
+            step_data['value_feature'].update(behavior_z)
         if self._whole_cfg.learner.use_dapo:
             step_data['successive_logit'] = successive_output['logit']
         self._hidden_state_backup = self._hidden_state
@@ -611,8 +610,8 @@ class Agent:
                     'hidden_state': self._hidden_state,
                 })
             if self._use_value_feature:
-                last_step_data['value_feature'] = 0  #  agent_obs['value_feature']
-                #  last_step_data['value_feature'].update(self.get_behavior_z())
+                last_step_data['value_feature'] = agent_obs['value_feature']
+                last_step_data['value_feature'].update(self.get_behavior_z())
             list_data = list(self._data_buffer)
             list_data.append(last_step_data)
             self._push_count = 0
