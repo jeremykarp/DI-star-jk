@@ -262,6 +262,8 @@ class Agent:
 
 
     def _pre_process(self, obs):
+        if obs['raw_obs'].observation.game_loop >= 5000:
+            import pdb; pdb.set_trace()
         if self._use_value_feature:
             agent_obs = self._feature.transform_obs(obs['raw_obs'], padding_spatial=True, opponent_obs=obs['opponent_obs'])
         else:
@@ -634,7 +636,7 @@ class Agent:
         battle_reward_num = compute_battle_reward(self._game_info, self._prev_game_info)
         #  battle_reward = battle_score - self._game_info['battle_score'] - (opponent_battle_score - self._game_info['opponent_battle_score'])
         battle_reward = torch.tensor(battle_reward_num, dtype=torch.float) / self._battle_norm
-        if next_obs['raw_obs'].observation.game_loop > 3000:
+        if next_obs['raw_obs'].observation.game_loop > 5000:
             print(next_obs['raw_obs'].observation.game_loop, battle_score,
                   opponent_battle_score,
                   self._game_info['battle_score'],
