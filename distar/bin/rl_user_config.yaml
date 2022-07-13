@@ -129,7 +129,7 @@ actor:
   episode_num: 100  # episode number
   print_freq: 1000  # log frequency in actor log
   traj_len: 16  # trajectory length, should be same as trajectory length in learner
-  use_cuda: False  # whether to use gpu in 'train_test' or 'eval_test'
+  use_cuda: True  # whether to use gpu in 'train_test' or 'eval_test'
   fake_model: False # if True, skip model loading
   player_ids: ['model1', 'model2']  # player ids used in RL
   agents:  
