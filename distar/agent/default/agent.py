@@ -321,6 +321,7 @@ class Agent:
             self._update_fake_reward(self._last_action_type, self._last_location, observation)
         model_input = self._pre_process(observation)
         self._stat_api.update(self._last_action_type, observation['action_result'][0], self._observation, self._game_step)
+        import pdb; pdb.set_trace()
         if not self._gpu_batch_inference:
             model_output = self.model.compute_logp_action(**model_input)
         else:
@@ -639,14 +640,6 @@ class Agent:
         # battle_reward_num = compute_battle_reward(self._game_info, self._prev_game_info)
         #  battle_reward = battle_score - self._game_info['battle_score'] - (opponent_battle_score - self._game_info['opponent_battle_score'])
         battle_reward = torch.tensor(battle_reward_num, dtype=torch.float) / self._battle_norm
-        if next_obs['raw_obs'].observation.game_loop > 5000:
-            print(next_obs['raw_obs'].observation.game_loop, battle_score,
-                  opponent_battle_score,
-                  self._prev_battle_score,
-                  self._prev_opponent_battle_score,
-                  battle_reward_num,
-                  battle_reward,
-                  self._battle_norm)
         self._prev_battle_score = battle_score
         self._prev_opponent_battle_score = opponent_battle_score
 
