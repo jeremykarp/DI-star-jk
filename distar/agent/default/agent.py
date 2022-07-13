@@ -305,7 +305,8 @@ class Agent:
 
     def step(self, observation):
         if 'eval' in self._job_type and self._iter_count > 0 and not self._whole_cfg.env.realtime:
-            self._update_fake_reward(self._last_action_type, self._last_location, observation)
+            # TODO: Fix this. Right now the reward for battle score will not work for eval mode
+            self._update_fake_reward(self._last_action_type, self._last_location, observation, observation)
         model_input = self._pre_process(observation)
         self._stat_api.update(self._last_action_type, observation['action_result'][0], self._observation, self._game_step)
         if not self._gpu_batch_inference:
@@ -472,13 +473,13 @@ class Agent:
         data.update(cum_out)
         return data
 
-    def collect_data(self, next_obs, reward, done,idx):
+    def collect_data(self, next_obs, prev_obs, reward, done,idx):
         action_result = False if next_obs is None else ('Success' in next_obs['action_result'])
         if action_result:
             self._success_iter_count += 1
 
         behavior_z = self.get_behavior_z()
-        bo_reward, cum_reward, battle_reward = self.update_fake_reward(next_obs)
+        bo_reward, cum_reward, battle_reward = self.update_fake_reward(next_obs, prev_obs)
         agent_obs = self._observation
         # teacher model forward
         teacher_obs = {'spatial_info': agent_obs['spatial_info'], 'entity_info': agent_obs['entity_info'],
@@ -612,21 +613,25 @@ class Agent:
         return {'beginning_order': torch.as_tensor(bo, dtype=torch.long), 'bo_location': torch.as_tensor(bo_location, dtype=torch.long),
                 'cumulative_stat': torch.as_tensor(self._behaviour_cumulative_stat, dtype=torch.bool).long()}
 
-    def update_fake_reward(self, next_obs):
-        bo_reward, cum_reward, battle_reward = self._update_fake_reward(self._last_action_type, self._last_location, next_obs)
+    def update_fake_reward(self, next_obs, prev_obs):
+        bo_reward, cum_reward, battle_reward = self._update_fake_reward(self._last_action_type, self._last_location, next_obs, prev_obs)
         return bo_reward, cum_reward, battle_reward
 
-    def _update_fake_reward(self, action_type, location, next_obs):
+    def _update_fake_reward(self, action_type, location, next_obs, prev_obs):
         bo_reward = torch.zeros(size=(), dtype=torch.float)
         cum_reward = torch.zeros(size=(), dtype=torch.float)
 
         battle_score = compute_battle_score(next_obs['raw_obs'])
         opponent_battle_score = compute_battle_score(next_obs['opponent_obs'])
-        battle_reward = battle_score - self._game_info['battle_score'] - (opponent_battle_score - self._game_info['opponent_battle_score'])
+        prev_battle_score = compute_battle_score(prev_obs['raw_obs'])
+        prev_opponent_battle_score = compute_battle_score(prev_obs['opponent_obs'])
+        battle_reward = (battle_score - prev_battle_score) - (opponent_battle_score - prev_opponent_battle_score)
         battle_reward = torch.tensor(battle_reward, dtype=torch.float) / self._battle_norm
         if next_obs['raw_obs'].observation.game_loop > 3000:
             print(next_obs['raw_obs'].observation.game_loop, battle_score,
                   opponent_battle_score,
+                  prev_battle_score,
+                  prev_opponent_battle_score,
                   self._game_info['battle_score'],
                   self._game_info['opponent_battle_score'],
                   battle_reward,

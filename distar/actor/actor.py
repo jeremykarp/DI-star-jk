@@ -7,6 +7,7 @@ import torch
 import torch.multiprocessing as mp
 import random
 import json
+import copy
 import platform
 
 from distar.agent.import_helper import import_module
@@ -103,6 +104,7 @@ class Actor(object):
                             agent.teacher_model = teacher_models[teacher_player_id]
 
     def _inference_loop(self, env_id=0, job={}, result_queue=None, pipe_c=None):
+        next_players_obs = None
         torch.set_num_threads(1)
         frac_ids = job.get('frac_ids',[])
         env_info = job.get('env_info', {})
@@ -165,7 +167,12 @@ class Actor(object):
                         env_start_time = time.time()
                         next_observations, reward, done = self._env.step(actions)
                         env_time = time.time() - env_start_time
+                        if next_players_obs is not None:
+                            prev_players_obs = copy.deepcopy(next_players_obs)
+                        else:
+                            prev_players_obs = copy.deepcopy(next_observations)
                         next_players_obs = next_observations
+
                         # collect data
                         if 'train' in self._job_type:
                             post_process_time = 0
@@ -177,7 +184,10 @@ class Actor(object):
                                     'send_data_players']:
                                     post_process_start_time = time.time()
                                     traj_data = self.agents[player_index].collect_data(next_players_obs[player_index],
-                                                                                    reward[player_index], done, player_index)
+                                                                                       prev_players_obs[player_index],
+                                                                                       reward[player_index],
+                                                                                       done,
+                                                                                       player_index)
                                     post_process_time += time.time() - post_process_start_time
                                     post_process_count += 1
                                     if traj_data is not None and self._job_type == 'train':
@@ -186,7 +196,8 @@ class Actor(object):
                                         send_data_time += time.time() - send_data_start_time
                                         send_data_count += 1
                                 else:
-                                    self.agents[player_index].update_fake_reward(next_players_obs[player_index])
+                                    self.agents[player_index].update_fake_reward(next_players_obs[player_index],
+                                                                                 prev_players_obs[player_index])
 
                         # update log
                         iter_count += 1
