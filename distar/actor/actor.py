@@ -57,7 +57,7 @@ class Actor(object):
                 if agent.HAS_MODEL:
                     if player_id not in self.models.keys():
                         if self._cfg.use_cuda:
-                            assert 'test' in self._job_type, 'only test mode support gpu'
+                            #  assert 'test' in self._job_type, 'only test mode support gpu'
                             agent.model = agent.model.cuda()
                         else:
                             agent.model = agent.model.eval().share_memory()
