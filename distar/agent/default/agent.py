@@ -119,6 +119,8 @@ class Agent:
         self.z_idx = None
         self._observation = None
         self._prev_observation = None
+        self._prev_battle_score = 0
+        self._prev_opponent_battle_score = 0
         self._game_info = None
         self._prev_game_info = None
         if self._whole_cfg.env.realtime:
@@ -161,6 +163,8 @@ class Agent:
         self._enemy_unit_type_bool = torch.zeros(NUM_UNIT_TYPES, dtype=torch.uint8)
         self._observation = None
         self._prev_observation = None
+        self._prev_battle_score = 0
+        self._prev_opponent_battle_score = 0
         self._game_info = None
         self._prev_game_info = None
         self._output = None
@@ -631,19 +635,20 @@ class Agent:
 
         battle_score = compute_battle_score(next_obs['raw_obs'])
         opponent_battle_score = compute_battle_score(next_obs['opponent_obs'])
-        battle_reward_num = compute_battle_reward(self._game_info, self._prev_game_info)
+        battle_reward_num = (battle_score - self._prev_battle_score) - (opponent_battle_score - self._prev_opponent_battle_score)
+        # battle_reward_num = compute_battle_reward(self._game_info, self._prev_game_info)
         #  battle_reward = battle_score - self._game_info['battle_score'] - (opponent_battle_score - self._game_info['opponent_battle_score'])
         battle_reward = torch.tensor(battle_reward_num, dtype=torch.float) / self._battle_norm
         if next_obs['raw_obs'].observation.game_loop > 5000:
             print(next_obs['raw_obs'].observation.game_loop, battle_score,
                   opponent_battle_score,
-                  self._game_info['battle_score'],
-                  self._game_info['opponent_battle_score'],
-                  self._prev_game_info['battle_score'],
-                  self._prev_game_info['opponent_battle_score'],
+                  self._prev_battle_score,
+                  self._prev_opponent_battle_score,
                   battle_reward_num,
                   battle_reward,
                   self._battle_norm)
+        self._prev_battle_score = battle_score
+        self._prev_opponent_battle_score = opponent_battle_score
 
         if not self._exceed_flag or True:
             return bo_reward, cum_reward, battle_reward
