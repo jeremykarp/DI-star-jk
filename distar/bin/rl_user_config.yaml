@@ -1,7 +1,7 @@
 var1: &model_path 'default'
 
 common:
-  experiment_name: 'rl_22'  # logger and checkpoint will be saved in this directory
+  experiment_name: 'rl_23'  # logger and checkpoint will be saved in this directory
 communication:
   coordinator_ip: '127.0.0.1' # coordinator server address, also used for league server, run coordinator and league on the node you specified
   coordinator_port: 23333  # coordinator server port
@@ -62,20 +62,20 @@ learner:
           built_unit: 0.0
           effect: 0.0
           upgrade: 0.0
-          battle: 5.0
+          battle: 0.05
       pg:  # vtrace loss weight for policy
           winloss: 1.0
           build_order: 0.0
           built_unit: 0.0
           effect: 0.0
           upgrade: 0.0
-          battle: 0.5
+          battle: 0.005
       upgo: # loss weight for upgo
           winloss: 1.0
       kl: 0.002  # loss weight for kl divergency from teacher model
       action_type_kl: 0.1  # extra action type loss weight
       dapo: 0.1  # dapo loss weight
-      entropy: 0.0001  # entropy loss weight
+      entropy: 0.00004  # entropy loss weight
   pg_head_weights:  # vtrace loss weight for each head in policy
       action_type: 1.0
       delay: 1.0
