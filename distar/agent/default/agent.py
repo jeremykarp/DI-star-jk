@@ -101,7 +101,7 @@ class Agent:
         self._z_path = self._whole_cfg.agent.z_path
         self._bo_norm = self._whole_cfg.get('learner', {}).get('bo_norm',20)
         self._cum_norm = self._whole_cfg.get('learner', {}).get('cum_norm',30)
-        self._battle_norm = self._whole_cfg.get('learner', {}).get('battle_norm',30)
+        self._battle_norm = self._whole_cfg.get('learner', {}).get('battle_norm',100)
         self.model = Model(cfg)
         self._player_id = None
         self._num_layers = self.model.cfg.encoder.core_lstm.num_layers
