@@ -364,7 +364,7 @@ def compute_battle_score(obs):
     for s in ScoreCategories:
         killed_mineral += getattr(score_details.killed_minerals, s.name)
         killed_vespene += getattr(score_details.killed_vespene, s.name)
-      battle_score = (killed_mineral + score_details.collected_minerals) + 1.5 * (killed_vespene + score_details.collected_vespene) + 20.0 * score_details.food_used.economy
+    battle_score = (killed_mineral + score_details.collected_minerals) + 1.5 * (killed_vespene + score_details.collected_vespene) + 20.0 * score_details.food_used.economy
     #  battle_score = (killed_mineral + score_details.collected_minerals) + 1.5 * (killed_vespene + score_details.collected_vespene)
 
     return battle_score
