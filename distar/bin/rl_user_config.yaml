@@ -31,7 +31,7 @@ learner:
   use_distributed: False
   use_value_feature: True  # whether to use value feature, this must be False when play against bot
   load_last_iter: True  # whether to load last iter in checkpoint
-  load_optimizer: False  # whether to load optimizer in checkpoint
+  load_optimizer: True  # whether to load optimizer in checkpoint
   lr_decay: 1.0  # learning rate decay
   lr_decay_interval: 10000  # learning rate decay interval
   use_warmup: False  # whether to use warm up for learning rate
@@ -39,10 +39,10 @@ learner:
   steps: 100000000  # max step for training
   su_mask: False  # whether to use selected units mask
   use_dapo: False  # whether to use dapo in TstarBotX
-  learning_rate: 0.00002
+  learning_rate: 0.000025
   weight_decay: 0  # weight decay in adam
   var_record_type: 'alphastar'  # log type
-  value_pretrain_iters: 4000  # max step for value pretrain
+  value_pretrain_iters: 100  # max step for value pretrain
   optimizer_warm_up_iters: 100  # warm up adam optimizer without updating model
   reset_env_wait_time: 60  # reset environment in actor after model reloading.
   grad_clip:
