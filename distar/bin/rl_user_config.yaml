@@ -62,7 +62,7 @@ learner:
           built_unit: 0.0
           effect: 0.0
           upgrade: 0.0
-          battle: 0.008
+          battle: 0.004
       pg:  # vtrace loss weight for policy
           winloss: 0.8
           build_order: 0.0
