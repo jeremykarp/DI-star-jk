@@ -105,6 +105,7 @@ class ReinforcementLoss:
             total_policy_gradient_loss += self.loss_weights.pg[field] * field_policy_gradient_loss
             for k, val in field_policy_gradient_loss_dict.items():
                 policy_gradient_loss_dict[field + '/' + k] = val
+                print(field, self.loss_weights.pg[field], k, val, field_policy_gradient_loss, baseline)
 
         loss_info_dict.update(policy_gradient_loss_dict)
         # ===========
