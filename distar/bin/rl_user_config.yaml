@@ -26,7 +26,7 @@ feature:
 learner:
   agent: 'default'  # agent name
   job_type: 'train' # 'train' or 'test'
-  load_path: '/home/ec2-user/DI-star-jk/experiments/rl_25/MP0/checkpoint/rl_25_MP0_iteration_45388.pth.tar' # load checkpoint when resume
+  load_path: '/home/ec2-user/DI-star-jk/experiments/rl_25/MP0/checkpoint/rl_25_MP0_iteration_47112.pth.tar' # load checkpoint when resume
   use_cuda: True
   use_distributed: False
   use_value_feature: True  # whether to use value feature, this must be False when play against bot
@@ -62,16 +62,16 @@ learner:
           built_unit: 0.0
           effect: 0.0
           upgrade: 0.0
-          battle: 0.0005
+          battle: 0.001
       pg:  # vtrace loss weight for policy
-          winloss: 1.0
+          winloss: 0.8
           build_order: 0.0
           built_unit: 0.0
           effect: 0.0
           upgrade: 0.0
-          battle: 0.00032
+          battle: 0.0005
       upgo: # loss weight for upgo
-          winloss: 1.0
+          winloss: 0.5
       kl: 0.002  # loss weight for kl divergency from teacher model
       action_type_kl: 0.1  # extra action type loss weight
       dapo: 0.1  # dapo loss weight
