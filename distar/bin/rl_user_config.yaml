@@ -69,7 +69,7 @@ learner:
           built_unit: 0.0
           effect: 0.0
           upgrade: 0.0
-          battle: 0.00016
+          battle: 0.00032
       upgo: # loss weight for upgo
           winloss: 1.0
       kl: 0.002  # loss weight for kl divergency from teacher model
