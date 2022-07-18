@@ -42,7 +42,7 @@ learner:
   learning_rate: 0.000025
   weight_decay: 0  # weight decay in adam
   var_record_type: 'alphastar'  # log type
-  value_pretrain_iters: 10  # max step for value pretrain
+  value_pretrain_iters: 2000  # max step for value pretrain
   optimizer_warm_up_iters: 10  # warm up adam optimizer without updating model
   reset_env_wait_time: 60  # reset environment in actor after model reloading.
   grad_clip:
