@@ -137,6 +137,7 @@ class ReinforcementLoss:
             loss_info_dict[field + '/td'] = critic_loss.item()
             loss_info_dict[field + '/reward'] = reward.float().mean().item()
             loss_info_dict[field + '/value'] = baseline.mean().item()
+            print(field, self.loss_weights.baseline[field] * critic_loss, self.loss_weights.baseline[field])
         loss_info_dict['battle' + '/reward'] = rewards_dict['battle'].float().mean().item()
         # ============
         # entropy loss
