@@ -1,7 +1,7 @@
 var1: &model_path 'default'
 
 common:
-  experiment_name: 'rl_25'  # logger and checkpoint will be saved in this directory
+  experiment_name: 'rl_25_neg_reward'  # logger and checkpoint will be saved in this directory
 communication:
   coordinator_ip: '127.0.0.1' # coordinator server address, also used for league server, run coordinator and league on the node you specified
   coordinator_port: 23333  # coordinator server port
@@ -26,7 +26,7 @@ feature:
 learner:
   agent: 'default'  # agent name
   job_type: 'train' # 'train' or 'test'
-  load_path: '/home/ec2-user/DI-star-jk/experiments/rl_25/MP0/checkpoint/rl_25_MP0_iteration_52000.pth.tar' # load checkpoint when resume
+  load_path: '' # load checkpoint when resume
   use_cuda: True
   use_distributed: False
   use_value_feature: True  # whether to use value feature, this must be False when play against bot
@@ -43,7 +43,7 @@ learner:
   weight_decay: 0  # weight decay in adam
   var_record_type: 'alphastar'  # log type
   value_pretrain_iters: 2000  # max step for value pretrain
-  optimizer_warm_up_iters: 10  # warm up adam optimizer without updating model
+  optimizer_warm_up_iters: 100  # warm up adam optimizer without updating model
   reset_env_wait_time: 60  # reset environment in actor after model reloading.
   grad_clip:
     type: 'pytorch_norm'  # gradient clip, one of ['max_norm', 'clip_value', 'none', 'clip_const', 'pytorch_norm', 'momentum_norm'], you can find more info at distar/ctoos/torh_utils/grad_clip.py
